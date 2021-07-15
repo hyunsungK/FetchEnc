@@ -5,8 +5,9 @@ import numpy as np
 import math
 import threading
 
-
 # 임시 데이터 불러오기(next_location & next_zone_no)
+
+
 def get_temp_Enc_Data(cursor):
     cursor.execute(F'Select * from "ENCData" limit 10')
     next_rows = cursor.fetchall()
@@ -24,7 +25,7 @@ def calulate_Zone_No(latitude, longitude, factor: 5):
     column = math.trunc(latitude)
     row = math.trunc(longitude)
 
-    return column * row
+    return column + row * 360
 
 
 def get_Zone_Enc_Data(cursor, zone_no):
@@ -61,10 +62,11 @@ def main():
                 next_latitude = cur_Latitude
                 next_longitude = cur_Longitude
 
-            # TODO: 9 hot zone,
+            # TODO: 9 hot zone, 7 broad zone. Total: 16 zone to redis
             # else:
             #     for i in range(0, 9):
             #         hot_zone_no = (math.floor(next_latitude) + dlatitude.index(i)) * ((math.floor(next_latitude) + dlongitude[i])
+
     except Exception as e:
         print("Error", e)
     else:
