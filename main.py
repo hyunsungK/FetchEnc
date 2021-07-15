@@ -27,7 +27,7 @@ def calculate_Zone_No(latitude, longitude):
 
 
 def get_Zone_Enc_Data(cursor, zone_no):
-    cursor.execute(F'Select * from "ENCData" where "Zone_No" = {zone_no}')
+    cursor.execute(F'Select * from "ENCData" where "Zone No" = {zone_no}')
     rows = cursor.fetchall()
     # print(zone_no, len(rows))
 
@@ -51,20 +51,22 @@ def main():
         for temp in temp_next_enc_data:  # while문으로 대체 예정
             next_latitude = temp[6]
             next_longitude = temp[7]
-            next_Zone_No = calulate_Zone_No(next_latitude, next_longitude)
+            next_Zone_No = calculate_Zone_No(next_latitude, next_longitude)
 
-            if cur_Zone_No == next_Zone_No:
-                next_Zone_No = cur_Zone_No
-                next_latitude = cur_Latitude
-                next_longitude = cur_Longitude
+            is_same_zone = True if cur_Zone_No == next_Zone_No else False
             # TODO: 9 hot zone, 7 broad zone. Total: 16 zone to redis
-            else:
+            if not is_same_zone:
                 temp_l = []
                 for i in range(0, 9):
                     hot_zone_no = next_Zone_No + 360 * \
                         dlatitude[i] + dlongitude[i]
+                    get_Zone_Enc_Data(cursor, hot_zone_no)
                     temp_l.append(hot_zone_no)
                 print(temp_l)
+
+            cur_Zone_No = next_Zone_No
+            cur_Latitude = next_latitude
+            cur_Longitude = next_longitude
 
     except Exception as e:
         print("Error", e)
